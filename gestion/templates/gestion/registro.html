@@ -1,0 +1,79 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>Registro | Pasta La Vista</title>
+
+    <link rel="stylesheet" href="{% static 'gestion/registro.css' %}">
+</head>
+
+<body>
+
+<div class="registro-container">
+
+    <div class="registro-card">
+
+        <h1>Crear Cuenta</h1>
+
+        <p class="subtitulo">
+            Sistema de Gestión Restaurante
+        </p>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="input-group">
+                <label>Usuario</label>
+                {{ form.username }}
+            </div>
+
+            <div class="input-group">
+                <label>Correo Electrónico</label>
+                {{ form.email }}
+            </div>
+
+            <div class="input-group">
+                <label>Contraseña</label>
+                {{ form.password1 }}
+            </div>
+
+            <div class="input-group">
+                <label>Confirmar Contraseña</label>
+                {{ form.password2 }}
+            </div>
+
+            <button type="submit">
+                Registrarse
+            </button>
+
+        </form>
+
+        <p class="login-link">
+            ¿Ya tienes cuenta?
+            <a href="{% url 'login' %}">
+                Iniciar sesión
+            </a>
+        </p>
+
+    </div>
+
+</div>
+{% if messages %}
+
+    {% for message in messages %}
+
+        <div class="mensaje {{ message.tags }}">
+            {{ message }}
+        </div>
+
+    {% endfor %}
+
+{% endif %}
+
+</body>
+</html>
