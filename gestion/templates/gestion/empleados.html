@@ -1,7 +1,12 @@
 {% extends 'gestion/base.html' %}
 
 {% block content %}
-<h2>Empleados</h2>
+<h2>Nuestros Empleados</h2>
+
+<a href="{% url 'crear_empleado' %}" class="btn-estandar">
+    Agregar Empleado
+</a>
+
 <table>
     <tr>
         <th>ID</th>
@@ -9,6 +14,7 @@
         <th>Cargo</th>
         <th>Teléfono</th>
         <th>Correo</th>
+        <th>Acciones</th>
     </tr>
     {% for empleado in empleados %}
     <tr>
@@ -17,6 +23,15 @@
         <td>{{ empleado.cargo }}</td>
         <td>{{ empleado.telefono }}</td>
         <td>{{ empleado.correo }}</td>
+        <td>
+            <a href="{% url 'editar_empleado' empleado.id %}" class="btn-estandar">
+                Editar
+            </a>
+
+            <a href="{% url 'eliminar_empleado' empleado.id %}" class="btn-eliminar">
+                Eliminar
+            </a>
+        </td>
     </tr>
     {% endfor %}
 </table>

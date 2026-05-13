@@ -2,12 +2,18 @@
 
 {% block content %}
 <h2>Mesas</h2>
+
+<a href="{% url 'crear_mesa' %}" class="btn-estandar">
+    Agregar Mesa
+</a>
+
 <table>
     <tr>
         <th>ID</th>
         <th>Número</th>
         <th>Capacidad</th>
         <th>Estado</th>
+        <th>Acciones</th>
     </tr>
     {% for mesa in mesas %}
     <tr>
@@ -15,6 +21,14 @@
         <td>{{ mesa.numero_mesa }}</td>
         <td>{{ mesa.capacidad }}</td>
         <td>{{ mesa.estado_mesa }}</td>
+        <td>
+            <a href="{% url 'editar_mesa' mesa.id %}" class="btn-estandar">
+                Editar
+            </a>
+            <a href="{% url 'eliminar_mesa' mesa.id %}" class="btn-eliminar">
+                Eliminar
+            </a>
+        </td>
     </tr>
     {% endfor %}
 </table>

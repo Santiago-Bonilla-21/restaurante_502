@@ -2,6 +2,11 @@
 
 {% block content %}
 <h2>Facturas</h2>
+
+<a href="{% url 'crear_factura' %}" class="btn-estandar">
+    Agregar Factura
+</a>
+
 <table>
     <tr>
         <th>ID</th>
@@ -11,6 +16,7 @@
         <th>Impuesto</th>
         <th>Total</th>
         <th>Método de pago</th>
+        <th>Acciones</th>
     </tr>
     {% for factura in facturas %}
     <tr>
@@ -21,6 +27,15 @@
         <td>{{ factura.impuesto }}</td>
         <td>{{ factura.total_factura }}</td>
         <td>{{ factura.metodo_pago }}</td>
+        <td>
+            <a href="{% url 'editar_factura' factura.id %}" class="btn-estandar">
+                Editar
+            </a>
+
+            <a href="{% url 'eliminar_factura' factura.id %}" class="btn-eliminar">
+                Eliminar
+            </a>
+        </td>
     </tr>
     {% endfor %}
 </table>

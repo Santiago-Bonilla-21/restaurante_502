@@ -4,11 +4,13 @@
 <html lang="es">
 
 <head>
+
     <meta charset="UTF-8">
 
-    <title>Login | Gestión de restaurante </title>
+    <title>Login | Gestión de restaurante</title>
 
     <link rel="stylesheet" href="{% static 'gestion/login.css' %}">
+
 </head>
 
 <body>
@@ -20,7 +22,7 @@
         <h1>Gestión de restaurante</h1>
 
         <p class="subtitulo">
-            Por favor inicie sesion para continuar
+            Por favor inicie sesión para continuar
         </p>
 
         <form method="POST">
@@ -28,42 +30,44 @@
             {% csrf_token %}
 
             <div class="input-group">
+
                 <label>Usuario</label>
+
                 {{ form.username }}
+
             </div>
 
             <div class="input-group">
+
                 <label>Contraseña</label>
+
                 {{ form.password }}
+
             </div>
 
             <button type="submit">
+
                 Ingresar
+
             </button>
 
         </form>
 
         <p class="registro-link">
+
             ¿No tienes cuenta?
+
             <a href="{% url 'registro' %}">
+
                 Registrarse
+
             </a>
+
         </p>
 
     </div>
 
 </div>
 
-{% if messages %}
-
-    {% for message in messages %}
-
-        <div class="mensaje {{ message.tags }}">
-            {{ message }}
-        </div>
-
-    {% endfor %}
-
-{% endif %}
 </body>
 </html>

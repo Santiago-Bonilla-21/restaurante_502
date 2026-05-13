@@ -1,0 +1,23 @@
+{% extends 'gestion/base.html' %}
+
+{% block content %}
+
+<h2>Editar Empleado</h2>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Actualizar
+    </button>
+
+    <a href="{% url 'empleados' %}" class="btn-cancelar">
+        Cancelar
+    </a>
+
+</form>
+
+{% endblock %}
