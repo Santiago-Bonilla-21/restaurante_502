@@ -54,10 +54,18 @@ class Mesa(models.Model):
 
 
 class Plato(models.Model):
+    ESTADOS_CATEGORIA = [
+        ('Entrada', 'Entrada'),
+        ('Plato Principal', 'Plato Principal'),
+        ('Postre', 'Postre'),
+        ('Bebida', 'Bebida'),
+    ]
+    
+
     nombre_plato = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    categoria = models.CharField(max_length=50, blank=True, null=True)
+    categoria = models.CharField(max_length=50, choices=ESTADOS_CATEGORIA, blank=True, null=True)
     disponible = models.BooleanField(default=True)
 
     class Meta:
