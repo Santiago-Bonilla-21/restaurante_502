@@ -6,9 +6,10 @@ from .forms import RegistroForm, LoginForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import ClienteForm, EmpleadoForm, MesaForm, PlatoForm, OrdenForm, FacturaForm
+from django.contrib.auth.models import Group
 
 # Create your views here.
-from .models import Cliente, Empleado, Mesa, Plato, Orden, Factura
+from .models import Cliente, Empleado, Mesa, Plato, Orden, Factura, DetalleOrden
 
 @login_required
 def inicio(request):
@@ -399,8 +400,12 @@ def eliminar_orden(request, id):
 
 @login_required
 def lista_facturas(request):
+
     facturas = Factura.objects.all()
-    return render(request, 'gestion/facturas.html', {'facturas': facturas})
+
+    return render(request, 'gestion/facturas.html', {
+        'facturas': facturas
+    })
 
 @login_required
 def crear_factura(request):
@@ -471,6 +476,32 @@ def eliminar_factura(request, id):
 
     return redirect('facturas')
 
+
+def facturar_orden(request, id):
+
+    factura = get_object_or_404(Factura, id=id)
+
+    # VALIDAR SI YA ESTA FACTURADA
+    if factura.estado_factura == 'Facturada':
+
+        messages.warning(request, 'Esta factura ya fue facturada.')
+
+        return redirect('facturas')
+
+    # CAMBIAR ESTADO
+    factura.estado_factura = 'Facturada'
+    factura.save()
+
+    # CAMBIAR ESTADO DE LA ORDEN
+    factura.orden.estado_orden = 'Facturada'
+    factura.orden.save()
+
+    messages.success(request, 'Factura realizada correctamente.')
+
+    return redirect('facturas')
+
+
+
 # REGISTRO
 def registro_view(request):
 
@@ -480,7 +511,13 @@ def registro_view(request):
 
         if form.is_valid():
 
-            form.save()
+            user = form.save()
+
+            rol = form.cleaned_data['rol']
+
+            grupo = Group.objects.get(name=rol)
+
+            user.groups.add(grupo)
 
             messages.success(
                 request,
@@ -490,13 +527,12 @@ def registro_view(request):
             return redirect('login')
 
     else:
+
         form = RegistroForm()
 
-    return render(
-        request,
-        'gestion/registro.html',
-        {'form': form}
-    )
+    return render(request, 'gestion/registro.html', {
+        'form': form
+    })
 
 
 # LOGIN

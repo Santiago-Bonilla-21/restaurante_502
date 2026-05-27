@@ -122,6 +122,7 @@ class DetalleOrden(models.Model):
 
 
 class Factura(models.Model):
+
     METODOS_PAGO = [
         ('Efectivo', 'Efectivo'),
         ('Tarjeta', 'Tarjeta'),
@@ -130,15 +131,66 @@ class Factura(models.Model):
         ('Daviplata', 'Daviplata'),
     ]
 
-    orden = models.OneToOneField(Orden, on_delete=models.CASCADE)
+    ESTADOS_FACTURA = [
+        ('Pendiente', 'Pendiente'),
+        ('Facturada', 'Facturada'),
+    ]
+
+    orden = models.OneToOneField(
+        Orden,
+        on_delete=models.CASCADE
+    )
+
     fecha_factura = models.DateTimeField(auto_now_add=True)
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
-    impuesto = models.DecimalField(max_digits=10, decimal_places=2)
-    total_factura = models.DecimalField(max_digits=10, decimal_places=2)
-    metodo_pago = models.CharField(max_length=30, choices=METODOS_PAGO)
+
+    subtotal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    impuesto = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    total_factura = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    metodo_pago = models.CharField(
+        max_length=30,
+        choices=METODOS_PAGO
+    )
+
+    estado_factura = models.CharField(
+        max_length=20,
+        choices=ESTADOS_FACTURA,
+        default='Pendiente'
+    )
 
     class Meta:
         db_table = 'Factura'
+
+    def save(self, *args, **kwargs):
+
+        # Tomar subtotal desde la orden
+        self.subtotal = self.orden.total
+
+        # Calcular IVA 19%
+        self.impuesto = self.subtotal * Decimal('0.19')
+
+        # Total final
+        self.total_factura = self.subtotal + self.impuesto
+
+        # Cambiar estado de la orden
+        self.orden.estado_orden = 'Facturada'
+        self.orden.save()
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Factura {self.id} - Orden {self.orden.id}"

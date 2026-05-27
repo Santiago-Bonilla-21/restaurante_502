@@ -313,3 +313,31 @@ button,
         transform: translateY(0);
     }
 }
+
+.estado-facturada {
+
+    background-color: #16a34a;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.estado-pendiente {
+
+    background-color: #f59e0b;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.btn-bloqueado {
+
+    background-color: #9ca3af;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: not-allowed;
+}

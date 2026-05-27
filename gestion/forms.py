@@ -7,15 +7,28 @@ from .models import Cliente, Empleado, Mesa, Plato, Orden, Factura
 
 class RegistroForm(UserCreationForm):
 
+    ROLES = [
+        ('administrador', 'Administrador'),
+        ('cajero', 'Cajero'),
+        ('mesero', 'Mesero'),
+    ]
+
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
-            'placeholder': 'Correo electrónico'
+            'placeholder': 'Ingrese su correo'
+        })
+    )
+
+    rol = forms.ChoiceField(
+        choices=ROLES,
+        widget=forms.Select(attrs={
+            'class': 'select-rol'
         })
     )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['username', 'email', 'rol', 'password1', 'password2']
 
 
 class LoginForm(AuthenticationForm):
