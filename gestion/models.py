@@ -1,5 +1,7 @@
 from decimal import Decimal
+from django.contrib.auth.models import User
 from django.db import models
+
 
 
 class Cliente(models.Model):
@@ -194,3 +196,79 @@ class Factura(models.Model):
 
     def __str__(self):
         return f"Factura {self.id} - Orden {self.orden.id}"
+
+class Rol(models.Model):
+    nombre = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.nombre
+    
+class Perfil(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.usuario.username
+    
+class Restaurante(models.Model):
+
+    nombre = models.CharField(max_length=100)
+
+    direccion = models.CharField(max_length=200)
+
+    telefono = models.CharField(max_length=20)
+
+    correo = models.EmailField()
+
+    logo = models.ImageField(upload_to='logos/', null=True, blank=True)
+
+    def __str__(self):
+
+        return self.nombre
+    
+class Reporte(models.Model):
+
+    TIPOS_REPORTE = [
+
+        ('Factura', 'Factura'),
+
+    ]
+
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    tipo = models.CharField(
+        max_length=50,
+        choices=TIPOS_REPORTE
+    )
+
+    descripcion = models.TextField()
+
+    mesero = models.ForeignKey(
+        Empleado,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='reportes_mesero'
+    )
+
+    cajero = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    factura = models.ForeignKey(
+        Factura,
+        on_delete=models.CASCADE
+    )
+
+    total_factura = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    class Meta:
+        db_table = 'Reporte'
+
+    def __str__(self):
+
+        return f"Reporte {self.id}"

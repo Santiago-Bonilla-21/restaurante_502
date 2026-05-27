@@ -1,0 +1,39 @@
+{% extends 'gestion/base.html' %}
+
+{% block content %}
+
+<h2>Crear Usuario</h2>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input type="text" name="username" placeholder="Usuario" required>
+
+    <input type="email" name="email" placeholder="Correo" required>
+
+    <input type="password" name="password" placeholder="Contraseña" required>
+
+    <select name="rol" required>
+
+        <option value="">Seleccione un rol</option>
+
+        <option value="Administrador">Administrador</option>
+
+        <option value="Mesero">Mesero</option>
+
+        <option value="Cajero">Cajero</option>
+
+    </select>
+
+    <button type="submit" class="btn-estandar">
+        Crear Usuario
+    </button>
+
+    <button type="button" class="btn-cancelar" onclick="window.location.href='{% url 'usuarios' %}'">
+        Cancelar
+    </button>
+
+</form>
+
+{% endblock %}

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from urllib import request
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -6,10 +7,13 @@ from .forms import RegistroForm, LoginForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import ClienteForm, EmpleadoForm, MesaForm, PlatoForm, OrdenForm, FacturaForm
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
+from .decorators import rol_permitido
+from django.db.models import Sum
 
 # Create your views here.
-from .models import Cliente, Empleado, Mesa, Plato, Orden, Factura, DetalleOrden
+from .models import Cliente, Empleado, Mesa, Plato, Orden, Factura, DetalleOrden, Reporte, Restaurante
+from gestion import models
 
 @login_required
 def inicio(request):
@@ -22,7 +26,172 @@ def inicio(request):
         'total_facturas': Factura.objects.count()
     }
     return render(request, 'gestion/inicio.html', context)
+
+def lista_usuarios(request):
+
+    usuarios = User.objects.all()
+
+    return render(request, 'gestion/usuarios.html', {
+
+        'usuarios': usuarios
+
+    })
  
+def crear_usuario(request):
+
+    if request.method == 'POST':
+
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+        rol = request.POST['rol']
+
+        # Crear usuario
+        usuario = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        # Asignar rol
+        grupo = Group.objects.get(name=rol)
+        usuario.groups.add(grupo)
+
+        messages.success(request, 'Usuario creado correctamente')
+
+        return redirect('usuarios')
+
+    return render(request, 'gestion/crear_usuario.html')
+
+def editar_usuario(request, id):
+
+    usuario = User.objects.get(id=id)
+
+    if request.method == 'POST':
+
+        usuario.username = request.POST['username']
+        usuario.email = request.POST['email']
+
+        usuario.save()
+
+        # Limpiar grupos anteriores
+        usuario.groups.clear()
+
+        # Nuevo rol
+        rol = request.POST['rol']
+
+        grupo = Group.objects.get(name=rol)
+
+        usuario.groups.add(grupo)
+
+        return redirect('usuarios')
+
+    return render(
+        request,
+        'gestion/editar_usuario.html',
+        {
+            'usuario': usuario
+        }
+    )
+
+def eliminar_usuario(request, id):
+
+    usuario = User.objects.get(id=id)
+
+    usuario.delete()
+
+    messages.success(
+        request,
+        'Usuario eliminado correctamente'
+    )
+
+    return redirect('usuarios')
+
+def asignar_rol(request, user_id):
+
+    usuario = User.objects.get(id=user_id)
+
+    if request.method == 'POST':
+
+        rol = request.POST['rol']
+
+        grupo = Group.objects.get(name=rol)
+
+        usuario.groups.clear()
+
+        usuario.groups.add(grupo)
+
+        messages.success(request, 'Rol asignado correctamente')
+
+        return redirect('usuarios')
+
+    grupos = Group.objects.all()
+
+    return render(request, 'gestion/usuarios/asignar_rol.html', {
+
+        'usuario': usuario,
+        'grupos': grupos
+
+    })
+
+
+def crear_reporte(request):
+
+    total_ordenes = Orden.objects.count()
+
+    total_clientes = Cliente.objects.count()
+
+    total_facturas = Factura.objects.count()
+
+    ingresos = sum(
+        factura.total_factura
+        for factura in Factura.objects.all()
+    )
+
+    reporte = Reporte.objects.create(
+
+        titulo='Reporte General',
+
+        tipo_reporte='General',
+
+        total_ordenes=total_ordenes,
+
+        total_clientes=total_clientes,
+
+        total_facturas=total_facturas,
+
+        ingresos_totales=Decimal(ingresos),
+
+    )
+
+    return redirect('reportes')
+
+def configuracion_restaurante(request):
+
+    restaurante = Restaurante.objects.first()
+
+    if request.method == 'POST':
+
+        restaurante.nombre = request.POST['nombre']
+
+        restaurante.direccion = request.POST['direccion']
+
+        restaurante.telefono = request.POST['telefono']
+
+        restaurante.correo = request.POST['correo']
+
+        restaurante.save()
+
+        messages.success(request, 'Información actualizada')
+
+        return redirect('configuracion')
+
+    return render(request, 'gestion/configuracion.html', {
+
+        'restaurante': restaurante
+
+    })
+
 @login_required
 def lista_clientes(request):
     clientes = Cliente.objects.all()
@@ -476,31 +645,61 @@ def eliminar_factura(request, id):
 
     return redirect('facturas')
 
+def reportes(request):
+
+    reportes = Reporte.objects.all()
+
+    return render(request, 'gestion/reportes.html', {
+        'reportes': reportes
+    })
 
 def facturar_orden(request, id):
 
-    factura = get_object_or_404(Factura, id=id)
+    factura = Factura.objects.get(id=id)
 
-    # VALIDAR SI YA ESTA FACTURADA
-    if factura.estado_factura == 'Facturada':
+    if factura.orden.estado_orden == 'Facturada':
 
-        messages.warning(request, 'Esta factura ya fue facturada.')
+        messages.warning(
+            request,
+            'Esta orden ya fue facturada'
+        )
 
         return redirect('facturas')
 
-    # CAMBIAR ESTADO
-    factura.estado_factura = 'Facturada'
-    factura.save()
-
-    # CAMBIAR ESTADO DE LA ORDEN
+    # Cambiar estado orden
     factura.orden.estado_orden = 'Facturada'
     factura.orden.save()
 
-    messages.success(request, 'Factura realizada correctamente.')
+    # Crear reporte automático
+    Reporte.objects.create(
+
+        tipo='Factura',
+
+        descripcion=(
+            f"Factura #{factura.id} "
+            f"generada para la orden #{factura.orden.id}"
+        ),
+
+        mesero=factura.orden.empleado,
+
+        cajero=request.user,
+
+        factura=factura,
+
+        total_factura=factura.total_factura
+
+    )
+
+    messages.success(
+        request,
+        'Factura generada correctamente'
+    )
 
     return redirect('facturas')
 
-
+@rol_permitido(roles=['Administrador'])
+def usuarios(request):
+    return render(request, 'gestion/usuarios.html')
 
 # REGISTRO
 def registro_view(request):

@@ -1,0 +1,76 @@
+{% extends 'gestion/base.html' %}
+
+{% block content %}
+
+<h2>Nuestros Usuarios</h2>
+
+<a href="{% url 'crear_usuario' %}" class="btn-estandar">
+    Agregar Usuario
+</a>
+
+<table>
+
+    <tr>
+
+        <th>ID</th>
+
+        <th>Username</th>
+
+        <th>Email</th>
+
+        <th>Rol</th>
+
+        <th>Acciones</th>
+
+    </tr>
+
+    {% for usuario in usuarios %}
+
+    <tr>
+
+        <td>{{ usuario.id }}</td>
+
+        <td>{{ usuario.username }}</td>
+
+        <td>{{ usuario.email }}</td>
+
+        <td>
+
+            {% for grupo in usuario.groups.all %}
+
+                {{ grupo.name }}
+
+            {% empty %}
+
+                Sin rol
+
+            {% endfor %}
+
+        </td>
+
+        <td>
+
+            <a href="{% url 'editar_usuario' usuario.id %}"
+               class="btn-estandar">
+
+                Editar
+
+            </a>
+
+            <a href="{% url 'eliminar_usuario' usuario.id %}"
+               class="btn-eliminar"
+               onclick="return confirm('¿Desea eliminar este usuario?')">
+
+                Eliminar
+
+            </a>
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% endblock %}

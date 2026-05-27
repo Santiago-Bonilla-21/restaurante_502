@@ -1,0 +1,68 @@
+{% extends 'gestion/base.html' %}
+
+{% block content %}
+
+<h2>Editar Usuario</h2>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <div class="input-group">
+
+        <label>Usuario</label>
+
+        <input
+            type="text"
+            name="username"
+            value="{{ usuario.username }}"
+            required
+        >
+
+    </div>
+
+    <div class="input-group">
+
+        <label>Correo</label>
+
+        <input
+            type="email"
+            name="email"
+            value="{{ usuario.email }}"
+            required
+        >
+
+    </div>
+
+    <div class="input-group">
+
+        <label>Rol</label>
+
+        <select name="rol" required>
+
+            <option value="Administrador">
+                Administrador
+            </option>
+
+            <option value="Mesero">
+                Mesero
+            </option>
+
+            <option value="Cajero">
+                Cajero
+            </option>
+
+        </select>
+
+    </div>
+
+    <button type="submit" class="btn-estandar">
+        Guardar Cambios
+    </button>
+    <button type="button" class="btn-cancelar" onclick="window.location.href='{% url 'usuarios' %}'">
+        Cancelar
+    </button>
+
+</form>
+
+{% endblock %}

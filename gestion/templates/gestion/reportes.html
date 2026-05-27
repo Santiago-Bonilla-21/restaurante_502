@@ -1,0 +1,65 @@
+{% extends 'gestion/base.html' %}
+
+{% block content %}
+
+<h2>Reportes</h2>
+
+<table>
+
+    <tr>
+
+        <th>ID</th>
+
+        <th>Fecha</th>
+
+        <th>Tipo</th>
+
+        <th>Mesero</th>
+
+        <th>Cajero</th>
+
+        <th>Factura</th>
+
+        <th>Total</th>
+
+        <th>Descripción</th>
+
+    </tr>
+
+    {% for reporte in reportes %}
+
+    <tr>
+
+        <td>{{ reporte.id }}</td>
+
+        <td>{{ reporte.fecha }}</td>
+
+        <td>{{ reporte.tipo }}</td>
+
+        <td>{{ reporte.mesero.nombre }}</td>
+
+        <td>{{ reporte.cajero.username }}</td>
+
+        <td>#{{ reporte.id }}</td>
+
+        <td>${{ reporte.total_factura }}</td>
+
+        <td>{{ reporte.descripcion }}</td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+<!-- TOTAL RECAUDADO -->
+
+<h3 style="margin-top: 30px;">
+
+    Total Recaudado:
+    
+    ${{ total_recaudado }}
+
+</h3>
+
+{% endblock %}
